@@ -3,11 +3,16 @@ import Navbar from "./Navbar";
 
 const Layout = () => {
   return (
-    <div>
+    <div className="flex flex-col min-h-screen bg-zinc-950 text-white">
+      
+      {/* Top Navbar */}
       <Navbar />
-      <main className="min-h-screen bg-zinc-950">
+
+      {/* Main Content */}
+      <main className="flex-1 w-full px-4 py-6 md:px-8">
         <Outlet />
       </main>
+
     </div>
   );
 };

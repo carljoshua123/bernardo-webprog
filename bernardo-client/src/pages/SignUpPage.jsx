@@ -1,12 +1,21 @@
-import AuthLayout from "../components/AuthLayout";
+
+import { useNavigate } from "react-router-dom";
 
 function SignUpPage() {
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Simulate successful sign up
+    navigate("/dashboard");
+  };
+
   return (
     <AuthLayout
       title="Create Account"
       subtitle="Join the Wet Carbon community and track the latest parts, releases, and rider updates."
     >
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Full Name"
