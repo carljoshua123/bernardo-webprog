@@ -1,6 +1,6 @@
 
 import { useNavigate } from "react-router-dom";
-
+import AuthLayout from "../components/AuthLayout.jsx";
 function SignUpPage() {
   const navigate = useNavigate();
 

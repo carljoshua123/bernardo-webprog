@@ -19,17 +19,38 @@ const router = createBrowserRouter([
     element: <Layout />,
     errorElement: <NotFoundPage />,
     children: [
-      { index: true, element: <HomePage /> },
-
-      { path: "about", element: <AboutPage /> },
-      { path: "articles", element: <ArticleListPage /> },
-      { path: "articles/:name", element: <ArticlePage /> },
-
-      { path: "signin", element: <SignInPage /> },
-      { path: "signup", element: <SignUpPage /> },
-
-      // ✅ ONLY ONE DASHBOARD PAGE
-      { path: "dashboard", element: <DashboardPage /> },
+      {
+        index: true,
+        element: <HomePage />,
+      },
+      {
+        path: "about",
+        element: <AboutPage />,
+      },
+      {
+        path: "articles",
+        element: <ArticleListPage />,
+      },
+      {
+        path: "articles/:name",
+        element: <ArticlePage />,
+      },
+      {
+        path: "signin",
+        element: <SignInPage />,
+      },
+      {
+        path: "signup",
+        element: <SignUpPage />,
+      },
+      {
+        path: "dashboard",
+        element: <DashboardPage />,
+      },
+      {
+        path: "*",
+        element: <NotFoundPage />,
+      },
     ],
   },
 ]);

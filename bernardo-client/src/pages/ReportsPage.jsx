@@ -65,9 +65,14 @@ function ReportsPage() {
     ],
   };
 
+
+  // Print handler
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <Box sx={{ p: 4, bgcolor: '#f8fafc', minHeight: '100vh', color: '#000' }}>
-
       {/* HEADER */}
       <Box
         sx={{
@@ -89,8 +94,8 @@ function ReportsPage() {
           </Typography>
         </Box>
 
-        <Button variant="contained" startIcon={<DownloadIcon />}>
-          Export Report
+        <Button variant="contained" color="primary" onClick={handlePrint} startIcon={<DownloadIcon />}>
+          Print Page
         </Button>
       </Box>
 
