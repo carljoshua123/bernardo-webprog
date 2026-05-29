@@ -1,5 +1,6 @@
-import { DataGrid } from '@mui/x-data-grid';
+import React, { useEffect, useState } from "react";
 
+import { DataGrid } from "@mui/x-data-grid";
 
 import {
   Box,
@@ -20,37 +21,47 @@ import {
   DialogActions,
   MenuItem,
   IconButton,
-} from '@mui/material';
-import PhotoCamera from '@mui/icons-material/PhotoCamera';
+} from "@mui/material";
 
-import GroupIcon from '@mui/icons-material/Group';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import PersonIcon from '@mui/icons-material/Person';
-import EditIcon from '@mui/icons-material/Edit';
-import SearchIcon from '@mui/icons-material/Search';
-import AddIcon from '@mui/icons-material/Add';
+import PhotoCamera from "@mui/icons-material/PhotoCamera";
+import GroupIcon from "@mui/icons-material/Group";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import PersonIcon from "@mui/icons-material/Person";
+import EditIcon from "@mui/icons-material/Edit";
+import SearchIcon from "@mui/icons-material/Search";
+import AddIcon from "@mui/icons-material/Add";
+
+import {
+  fetchUsers,
+  createUser,
+} from "../services/UserService";
 
 const columns = [
-  { field: 'id', headerName: 'ID', width: 80 },
+  {
+    field: "id",
+    headerName: "ID",
+    width: 120,
+  },
 
   {
-    field: 'name',
-    headerName: 'Name',
+    field: "name",
+    headerName: "Name",
     flex: 1,
     minWidth: 180,
   },
 
   {
-    field: 'email',
-    headerName: 'Email',
-    flex: 1.2,
+    field: "email",
+    headerName: "Email",
+    flex: 1,
     minWidth: 220,
   },
 
   {
-    field: 'role',
-    headerName: 'Role',
+    field: "role",
+    headerName: "Role",
     width: 140,
+
     renderCell: (params) => {
       const role = params.value;
 
@@ -59,11 +70,11 @@ const columns = [
           label={role}
           size="small"
           color={
-            role === 'Admin'
-              ? 'error'
-              : role === 'Editor'
-              ? 'primary'
-              : 'success'
+            role === "admin"
+              ? "error"
+              : role === "editor"
+              ? "primary"
+              : "success"
           }
           variant="outlined"
         />
@@ -72,53 +83,73 @@ const columns = [
   },
 
   {
-    field: 'status',
-    headerName: 'Status',
+    field: "status",
+    headerName: "Status",
     width: 130,
+
     renderCell: (params) => (
       <Chip
         label={params.value}
         size="small"
-        color={params.value === 'Active' ? 'success' : 'default'}
+        color={
+          params.value === "Active"
+            ? "success"
+            : "default"
+        }
       />
     ),
   },
 ];
 
-const initialRows = [
-  { id: 1, name: 'Alice Johnson', email: 'alice@email.com', role: 'Admin', status: 'Active' },
-  { id: 2, name: 'Bob Smith', email: 'bob@email.com', role: 'User', status: 'Inactive' },
-  { id: 3, name: 'Charlie Lee', email: 'charlie@email.com', role: 'Editor', status: 'Active' },
-  { id: 4, name: 'Dana White', email: 'dana@email.com', role: 'User', status: 'Active' },
-  { id: 5, name: 'Ethan Brown', email: 'ethan@email.com', role: 'User', status: 'Inactive' },
-];
-
-function SummaryCard({ title, value, icon, color }) {
+function SummaryCard({
+  title,
+  value,
+  icon,
+  color,
+}) {
   return (
     <Card
       elevation={3}
       sx={{
         borderRadius: 4,
-        transition: '0.25s ease',
-        '&:hover': {
-          transform: 'translateY(-5px)',
+
+        "&:hover": {
+          transform: "translateY(-5px)",
           boxShadow: 6,
         },
       }}
     >
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
           <Box>
-            <Typography variant="subtitle2" color="text.secondary">
+            <Typography
+              variant="subtitle2"
+              color="text.secondary"
+            >
               {title}
             </Typography>
 
-            <Typography variant="h5" fontWeight={700} mt={1}>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              mt={1}
+            >
               {value}
             </Typography>
           </Box>
 
-          <Avatar sx={{ bgcolor: color, width: 52, height: 52 }}>
+          <Avatar
+            sx={{
+              bgcolor: color,
+              width: 52,
+              height: 52,
+            }}
+          >
             {icon}
           </Avatar>
         </Box>
@@ -127,129 +158,241 @@ function SummaryCard({ title, value, icon, color }) {
   );
 }
 
-
-import React, { useState } from 'react';
-
 function UsersPage() {
-  const [rows, setRows] = useState(initialRows);
+  const [rows, setRows] = useState([]);
+
   const [open, setOpen] = useState(false);
+
   const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
-    age: '',
-    gender: '',
-    role: '',
-    username: '',
-    password: '',
-    address: '',
+    firstName: "",
+    lastName: "",
+    age: "",
+    gender: "",
+    contactNumber: "",
+    email: "",
+    role: "",
+    username: "",
+    password: "",
+    address: "",
     image: null,
-    imageUrl: '',
+    imageUrl: "",
   });
 
   const handleOpen = () => setOpen(true);
+
   const handleClose = () => {
     setOpen(false);
-    setForm({ fullName: '', username: '', email: '', role: '', status: '', image: null, imageUrl: '' });
+
+    setForm({
+      firstName: "",
+      lastName: "",
+      age: "",
+      gender: "",
+      contactNumber: "",
+      email: "",
+      role: "",
+      username: "",
+      password: "",
+      address: "",
+      image: null,
+      imageUrl: "",
+    });
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+
     if (file) {
-      setForm((prev) => ({ ...prev, image: file, imageUrl: URL.createObjectURL(file) }));
+      setForm((prev) => ({
+        ...prev,
+        image: file,
+        imageUrl: URL.createObjectURL(file),
+      }));
     }
   };
 
-  const handleSubmit = (e) => {
+  const loadUsers = async () => {
+    try {
+      const res = await fetchUsers();
+
+      console.log("API RESPONSE:", res.data);
+
+      const users = Array.isArray(res.data)
+        ? res.data
+        : res.data.users || [];
+
+      const formattedUsers = users.map((user) => ({
+        id: user._id || Math.random(),
+
+        name: `${user.firstName || ""} ${
+          user.lastName || ""
+        }`,
+
+        email: user.email || "",
+
+        role: user.type || "viewer",
+
+        status: user.isActive
+          ? "Active"
+          : "Inactive",
+      }));
+
+      setRows(formattedUsers);
+    } catch (error) {
+      console.error(
+        "LOAD USERS ERROR:",
+        error
+      );
+
+      setRows([]);
+    }
+  };
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Compose full name for display
-    const name = `${form.firstName} ${form.lastName}`;
-    // Compose email (optional, can be blank or generated)
-    const email = form.username ? `${form.username}@email.com` : '';
-    // Add new user to table
-    setRows(prev => [
-      ...prev,
-      {
-        id: prev.length ? prev[prev.length - 1].id + 1 : 1,
-        name,
-        email,
-        role: form.role,
-        status: 'Active',
+
+    try {
+      const newUser = {
+        firstName: form.firstName,
+        lastName: form.lastName,
         age: form.age,
         gender: form.gender,
+        contactNumber: form.contactNumber,
+        email: form.email,
+        type: form.role,
         username: form.username,
+        password: form.password,
         address: form.address,
-        // You can add more fields as needed
-      }
-    ]);
-    handleClose();
+        isActive: true,
+      };
+
+      console.log("SENDING:", newUser);
+
+      const res = await createUser(newUser);
+
+      console.log("CREATED:", res.data);
+
+      await loadUsers();
+
+      handleClose();
+    } catch (error) {
+      console.error(
+        "CREATE USER ERROR:",
+        error
+      );
+
+      alert(
+        error.response?.data?.message ||
+          "Failed to add user"
+      );
+    }
   };
 
   return (
     <Box
       sx={{
-        p: { xs: 2, md: 4 },
-        bgcolor: '#f4f6f8',
-        minHeight: '100vh',
-        color: '#000',
+        p: 4,
+        bgcolor: "#f4f6f8",
+        minHeight: "100vh",
       }}
     >
       {/* HEADER */}
       <Box
         sx={{
           mb: 4,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
           gap: 2,
         }}
       >
         <Box>
-          <Typography variant="h4" fontWeight={800} sx={{ color: '#000' }}>
+          <Typography
+            variant="h4"
+            fontWeight={800}
+          >
             User Management
           </Typography>
 
-          <Typography sx={{ color: '#000', opacity: 0.75 }}>
-            Manage accounts, roles, and permissions
+          <Typography color="text.secondary">
+            Manage accounts and permissions
           </Typography>
         </Box>
 
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpen}>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleOpen}
+        >
           Add User
         </Button>
       </Box>
 
-      {/* Add User Modal */}
-      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 700, textAlign: 'center', letterSpacing: 1 }}>Add User</DialogTitle>
+      {/* MODAL */}
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          Add User
+        </DialogTitle>
+
         <DialogContent>
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{ mt: 1 }}
+          >
             <Stack spacing={3}>
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', mb: 2 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexDirection: "column",
+                }}
+              >
                 <input
                   accept="image/*"
-                  style={{ display: 'none' }}
+                  style={{ display: "none" }}
                   id="user-image-upload"
                   type="file"
                   onChange={handleImageChange}
                 />
+
                 <label htmlFor="user-image-upload">
-                  <IconButton component="span" sx={{ mb: 1 }}>
+                  <IconButton component="span">
                     <Avatar
                       src={form.imageUrl}
-                      sx={{ width: 80, height: 80, bgcolor: '#e0e7ef', border: '2px solid #1976d2' }}
+                      sx={{
+                        width: 80,
+                        height: 80,
+                      }}
                     >
-                      {!form.imageUrl && <PhotoCamera fontSize="large" />}
+                      {!form.imageUrl && (
+                        <PhotoCamera />
+                      )}
                     </Avatar>
                   </IconButton>
                 </label>
-                <Typography variant="caption" color="text.secondary">Upload Photo</Typography>
               </Box>
+
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <TextField
@@ -261,6 +404,7 @@ function UsersPage() {
                     required
                   />
                 </Grid>
+
                 <Grid item xs={12} sm={6}>
                   <TextField
                     label="Last Name"
@@ -271,18 +415,18 @@ function UsersPage() {
                     required
                   />
                 </Grid>
+
                 <Grid item xs={12} sm={4}>
                   <TextField
                     label="Age"
                     name="age"
                     value={form.age}
                     onChange={handleChange}
-                    type="number"
                     fullWidth
                     required
-                    inputProps={{ min: 0 }}
                   />
                 </Grid>
+
                 <Grid item xs={12} sm={4}>
                   <TextField
                     select
@@ -293,11 +437,16 @@ function UsersPage() {
                     fullWidth
                     required
                   >
-                    <MenuItem value="Male">Male</MenuItem>
-                    <MenuItem value="Female">Female</MenuItem>
-                    <MenuItem value="Other">Other</MenuItem>
+                    <MenuItem value="Male">
+                      Male
+                    </MenuItem>
+
+                    <MenuItem value="Female">
+                      Female
+                    </MenuItem>
                   </TextField>
                 </Grid>
+
                 <Grid item xs={12} sm={4}>
                   <TextField
                     select
@@ -308,11 +457,42 @@ function UsersPage() {
                     fullWidth
                     required
                   >
-                    <MenuItem value="Admin">Admin</MenuItem>
-                    <MenuItem value="Editor">Editor</MenuItem>
-                    <MenuItem value="Viewer">Viewer</MenuItem>
+                    <MenuItem value="admin">
+                      Admin
+                    </MenuItem>
+
+                    <MenuItem value="editor">
+                      Editor
+                    </MenuItem>
+
+                    <MenuItem value="viewer">
+                      Viewer
+                    </MenuItem>
                   </TextField>
                 </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Contact Number"
+                    name="contactNumber"
+                    value={form.contactNumber}
+                    onChange={handleChange}
+                    fullWidth
+                    required
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Email"
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    fullWidth
+                    required
+                  />
+                </Grid>
+
                 <Grid item xs={12} sm={6}>
                   <TextField
                     label="Username"
@@ -323,17 +503,19 @@ function UsersPage() {
                     required
                   />
                 </Grid>
+
                 <Grid item xs={12} sm={6}>
                   <TextField
                     label="Password"
                     name="password"
+                    type="password"
                     value={form.password}
                     onChange={handleChange}
-                    type="password"
                     fullWidth
                     required
                   />
                 </Grid>
+
                 <Grid item xs={12}>
                   <TextField
                     label="Address"
@@ -341,27 +523,38 @@ function UsersPage() {
                     value={form.address}
                     onChange={handleChange}
                     fullWidth
-                    required
                     multiline
                     minRows={2}
+                    required
                   />
                 </Grid>
               </Grid>
             </Stack>
           </Box>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={handleClose} variant="outlined" color="secondary">Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" color="primary">Save</Button>
+
+        <DialogActions>
+          <Button
+            onClick={handleClose}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+          >
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
 
-      {/* SUMMARY CARDS */}
+      {/* SUMMARY */}
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
           <SummaryCard
             title="Total Users"
-            value="1,245"
+            value={rows.length}
             icon={<GroupIcon />}
             color="#06b6d4"
           />
@@ -369,8 +562,13 @@ function UsersPage() {
 
         <Grid item xs={12} md={4}>
           <SummaryCard
-            title="Administrators"
-            value="18"
+            title="Admins"
+            value={
+              rows.filter(
+                (row) =>
+                  row.role === "admin"
+              ).length
+            }
             icon={<AdminPanelSettingsIcon />}
             color="#ef4444"
           />
@@ -379,14 +577,19 @@ function UsersPage() {
         <Grid item xs={12} md={4}>
           <SummaryCard
             title="Active Users"
-            value="1,102"
+            value={
+              rows.filter(
+                (row) =>
+                  row.status === "Active"
+              ).length
+            }
             icon={<PersonIcon />}
             color="#22c55e"
           />
         </Grid>
       </Grid>
 
-      {/* SEARCH + TABLE */}
+      {/* TABLE */}
       <Paper
         elevation={3}
         sx={{
@@ -396,10 +599,9 @@ function UsersPage() {
         }}
       >
         <Stack
-          direction={{ xs: 'column', md: 'row' }}
-          spacing={2}
+          direction="row"
           justifyContent="space-between"
-          alignItems={{ xs: 'stretch', md: 'center' }}
+          alignItems="center"
           mb={3}
         >
           <TextField
@@ -415,60 +617,29 @@ function UsersPage() {
             }}
           />
 
-          <Button variant="outlined" startIcon={<EditIcon />}>
+          <Button
+            variant="outlined"
+            startIcon={<EditIcon />}
+          >
             Manage Roles
           </Button>
         </Stack>
 
-        <Box sx={{ height: 520, width: '100%' }}>
+        <Box
+          sx={{
+            height: 520,
+            width: "100%",
+          }}
+        >
           <DataGrid
             rows={rows}
             columns={columns}
             checkboxSelection
             disableRowSelectionOnClick
-            paginationModel={{ pageSize: 5, page: 0 }}
             pageSizeOptions={[5, 10]}
-            sx={{
-              border: 0,
-              borderRadius: 3,
-              bgcolor: '#fff',
-
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#f1f5f9',
-                fontWeight: 700,
-              },
-
-              '& .MuiDataGrid-columnHeaderTitle': {
-                fontWeight: 700,
-              },
-
-              '& .MuiDataGrid-row:hover': {
-                backgroundColor: '#f8fafc',
-              },
-            }}
-            getRowId={(row) => row.id}
           />
         </Box>
       </Paper>
-
-      {/* INSIGHTS */}
-      <Box
-        sx={{
-          mt: 4,
-          p: 3,
-          borderRadius: 4,
-          bgcolor: '#e0f2fe',
-        }}
-      >
-        <Typography variant="h6" fontWeight={700} sx={{ color: '#000' }}>
-          User Insights
-        </Typography>
-
-        <Typography sx={{ color: '#000', opacity: 0.75, mt: 1 }}>
-          Active users are increasing monthly. Monitor inactive accounts to improve system efficiency
-          and security.
-        </Typography>
-      </Box>
     </Box>
   );
 }

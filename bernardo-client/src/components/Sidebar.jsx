@@ -28,8 +28,11 @@ const Sidebar = () => {
         p: 2,
       }}
     >
+      {/* Image above navigation links */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+        <img src="/src/assets/image.png" alt="Sidebar Visual" style={{ width: '80%', borderRadius: 8 }} />
+      </Box>
       <List>
-
         <NavLink to="/dashboard" style={linkStyle}>
           <ListItemButton>
             <ListItemIcon sx={{ color: "white" }}>
@@ -57,6 +60,16 @@ const Sidebar = () => {
           </ListItemButton>
         </NavLink>
 
+        {/* Add Article link */}
+        <NavLink to="/dashboard/articles" style={linkStyle}>
+          <ListItemButton>
+            <ListItemIcon sx={{ color: "white" }}>
+              {/* You can use an icon here, e.g., DescriptionIcon from @mui/icons-material */}
+              <span role="img" aria-label="article">📝</span>
+            </ListItemIcon>
+            <ListItemText primary="Articles" />
+          </ListItemButton>
+        </NavLink>
       </List>
     </Box>
   );

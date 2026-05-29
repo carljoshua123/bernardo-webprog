@@ -20,6 +20,7 @@ import ReportIcon from "@mui/icons-material/Report";
 
 import ReportsPage from "./ReportsPage";
 import UsersPage from "./UsersPage";
+import DashArticleListPage from "./DashArticleListPage";
 
 /* ================= DASHBOARD HOME ================= */
 function DashboardHome() {
@@ -175,6 +176,8 @@ export default function DashboardPage() {
         return <ReportsPage />;
       case "users":
         return <UsersPage />;
+      case "articles":
+        return <DashArticleListPage />;
       default:
         return <DashboardHome />;
     }
@@ -238,6 +241,21 @@ export default function DashboardPage() {
           }}
         >
           Users
+        </Button>
+
+        <Button
+          fullWidth
+          startIcon={<span role="img" aria-label="article">📝</span>}
+          onClick={() => setView("articles")}
+          sx={{
+            color: "white",
+            justifyContent: "flex-start",
+            borderRadius: 2,
+            bgcolor: view === "articles" ? "#1e293b" : "transparent",
+            mt: 1,
+          }}
+        >
+          Articles
         </Button>
       </Box>
 
