@@ -1,8 +1,25 @@
+import { useState, useEffect } from 'react';
 import Button from '../components/Button';
 import ArticleList from '../components/ArticleList.jsx';
-import articles from '../assets/article-content.js';
+import { fetchArticles } from '../services/ArticleService.js';
 
 const ArticleListPage = () => {
+  const [articles, setArticles] = useState([]);
+
+  useEffect(() => {
+    loadArticles();
+  }, []);
+
+  const loadArticles = async () => {
+    try {
+      const response = await fetchArticles();
+      // Filter to show only Active articles
+      const activeArticles = response.data.filter(a => a.status === 'Active');
+      setArticles(activeArticles);
+    } catch (error) {
+      console.error('Error fetching articles:', error);
+    }
+  };
   return (
     <div className="flex w-full flex-col gap-10 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
       <section className="overflow-hidden rounded-[2rem] border border-zinc-800 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.18),_transparent_34%),linear-gradient(135deg,#101114_0%,#171a21_52%,#0c0d10_100%)] text-left shadow-[0_30px_80px_rgba(0,0,0,0.35)]">
@@ -28,11 +45,11 @@ const ArticleListPage = () => {
           <div className="grid gap-4 sm:grid-cols-2">
             {articles.slice(0, 4).map((article) => (
               <div
-                key={article.name}
+                key={article._id || article.slug}
                 className="relative min-h-40 overflow-hidden rounded-[1.5rem] border border-white/10 bg-zinc-900/80"
               >
                 <img
-                  src={article.image}
+                  src={article.imageUrl}
                   alt={article.title}
                   className="absolute inset-0 h-full w-full object-cover opacity-60"
                 />

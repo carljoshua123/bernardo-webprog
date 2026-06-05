@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
 import Button from "../components/Button";
-import articles from "../assets/article-content.js";
+import { fetchArticles } from "../services/ArticleService.js";
 
 const previewCards = [
   {
@@ -51,8 +52,37 @@ function PreviewGrid({ className = "grid md:grid-cols-3 gap-6", compact = false 
 }
 
 export default function ArticlePage() {
-  const { name } = useParams();
-  const article = articles.find((item) => item.name === name);
+  const { name } = useParams(); // Using 'name' in the param but it should contain the slug
+  const [article, setArticle] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadArticle = async () => {
+      try {
+        const response = await fetchArticles();
+        // Find the article by slug
+        const foundArticle = response.data.find((item) => item.slug === name);
+        setArticle(foundArticle);
+      } catch (error) {
+        console.error('Error fetching article:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadArticle();
+  }, [name]);
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto px-6 py-12 fade-in space-y-10">
+        <section className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <div className="max-w-3xl">
+            <p>Loading article...</p>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   if (!article) {
     return (
@@ -92,7 +122,7 @@ export default function ArticlePage() {
             {article.title}
           </h1>
           <p className="mt-4 text-sm leading-7 text-zinc-600 sm:text-base">
-            {article.desc}
+            {article.paragraphs?.[0] ?? ""}
           </p>
         </div>
       </section>
@@ -102,14 +132,14 @@ export default function ArticlePage() {
           <div>
             <div className="aspect-[4/3] overflow-hidden rounded-[1.25rem] border-2 border-zinc-900 bg-zinc-200 mb-6">
               <img
-                src={article.image}
+                src={article.imageUrl}
                 alt={article.title}
                 className="h-full w-full object-cover"
               />
             </div>
 
             <div className="space-y-4 text-zinc-700">
-              {article.content.map((paragraph, index) => (
+              {article.paragraphs?.map((paragraph, index) => (
                 <p key={index} className="text-base leading-7 whitespace-pre-wrap">
                   {paragraph}
                 </p>

@@ -5,14 +5,14 @@ const ArticleList = ({ articles = [] }) => {
     <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
       {articles.map((article) => (
         <article
-          key={article.name}
+          key={article._id || article.slug}
           className="group overflow-hidden rounded-[1.75rem] border border-zinc-200 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(15,23,42,0.14)]"
         >
           <div className="relative aspect-[4/3] overflow-hidden bg-zinc-200">
-            {article.image ? (
+            {article.imageUrl ? (
               <>
                 <img
-                  src={article.image}
+                  src={article.imageUrl}
                   alt={article.title}
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
@@ -38,7 +38,7 @@ const ArticleList = ({ articles = [] }) => {
                 {article.title}
               </h3>
               <p className="mt-3 text-sm leading-7 text-zinc-600">
-                {article.desc ?? article.content?.[0]}
+                {article.paragraphs?.[0] ?? "No description available"}
               </p>
             </div>
 
@@ -46,7 +46,7 @@ const ArticleList = ({ articles = [] }) => {
               <span className="text-xs font-medium uppercase tracking-[0.22em] text-zinc-400">
                 Open Article
               </span>
-              <Button to={`/articles/${article.name}`} className="px-5 py-2.5 text-sm">
+              <Button to={`/articles/${article.slug}`} className="px-5 py-2.5 text-sm">
                 Read More
               </Button>
             </div>

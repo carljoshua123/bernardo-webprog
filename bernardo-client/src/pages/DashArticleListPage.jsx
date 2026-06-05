@@ -1,30 +1,46 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip
 } from '@mui/material';
-import articlesData from '../assets/article-content.js';
+import { fetchArticles, createArticle, updateArticle, deleteArticle } from '../services/ArticleService.js';
 
 
 const defaultForm = {
-  name: '',
+  slug: '',
   title: '',
-  image: '',
-  desc: '',
-  content: '',
+  imageUrl: '',
+  paragraphs: '',
   status: 'Active',
 };
 
 const DashArticleListPage = () => {
-  const [articles, setArticles] = useState(articlesData);
+  const [articles, setArticles] = useState([]);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(defaultForm);
   const [editIdx, setEditIdx] = useState(null);
+  const [editId, setEditId] = useState(null);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
 
+  // Fetch articles on component mount
+  useEffect(() => {
+    loadArticles();
+  }, []);
+
+  const loadArticles = async () => {
+    try {
+      const response = await fetchArticles();
+      setArticles(response.data);
+    } catch (error) {
+      console.error('Error fetching articles:', error);
+      alert('Failed to load articles');
+    }
+  };
+
   const handleOpen = () => {
     setEditIdx(null);
+    setEditId(null);
     setForm(defaultForm);
     setOpen(true);
   };
@@ -32,53 +48,80 @@ const DashArticleListPage = () => {
     setOpen(false);
     setForm(defaultForm);
     setEditIdx(null);
+    setEditId(null);
   };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
-  const handleSave = () => {
-    if (editIdx !== null) {
-      // Edit mode
-      setArticles((prev) => prev.map((a, i) => i === editIdx ? {
-        ...form,
-        content: form.content.split('\n'),
-      } : a));
-    } else {
-      // Add mode
-      setArticles([
-        ...articles,
-        {
-          ...form,
-          content: form.content.split('\n'),
-        },
-      ]);
+  const handleSave = async () => {
+    try {
+      const formData = {
+        slug: form.slug,
+        title: form.title,
+        imageUrl: form.imageUrl,
+        paragraphs: form.paragraphs.split('\n').filter(p => p.trim() !== ''),
+        status: form.status,
+      };
+
+      if (editId !== null) {
+        // Edit mode
+        await updateArticle(editId, formData);
+        alert('Article updated successfully!');
+      } else {
+        // Add mode
+        await createArticle(formData);
+        alert('Article created successfully!');
+      }
+      await loadArticles();
+      handleClose();
+    } catch (error) {
+      console.error('Error saving article:', error);
+      alert('Failed to save article: ' + error.response?.data?.message || error.message);
     }
-    handleClose();
   };
   const handleEdit = (idx) => {
     setEditIdx(idx);
     const a = articles[idx];
+    setEditId(a._id);
     setForm({
-      ...a,
-      content: Array.isArray(a.content) ? a.content.join('\n') : a.content,
+      slug: a.slug,
+      title: a.title,
+      imageUrl: a.imageUrl || '',
+      paragraphs: Array.isArray(a.paragraphs) ? a.paragraphs.join('\n') : a.paragraphs || '',
+      status: a.status,
     });
     setOpen(true);
   };
-  const handleDelete = (idx) => {
+  const handleDelete = async (idx) => {
     if (window.confirm('Delete this article?')) {
-      setArticles((prev) => prev.filter((_, i) => i !== idx));
+      try {
+        await deleteArticle(articles[idx]._id);
+        alert('Article deleted successfully!');
+        await loadArticles();
+      } catch (error) {
+        console.error('Error deleting article:', error);
+        alert('Failed to delete article');
+      }
     }
   };
-  const handleToggleStatus = (idx) => {
-    setArticles((prev) => prev.map((a, i) => i === idx ? {
-      ...a,
-      status: a.status === 'Active' ? 'Inactive' : 'Active',
-    } : a));
+  const handleToggleStatus = async (idx) => {
+    try {
+      const article = articles[idx];
+      const newStatus = article.status === 'Active' ? 'Disabled' : 'Active';
+      await updateArticle(article._id, {
+        ...article,
+        status: newStatus,
+      });
+      await loadArticles();
+    } catch (error) {
+      console.error('Error updating status:', error);
+      alert('Failed to update status');
+    }
   };
   // Search and filter
   const filtered = articles.filter(a =>
-    (a.title.toLowerCase().includes(search.toLowerCase()) || a.name.toLowerCase().includes(search.toLowerCase())) &&
+    (a.title.toLowerCase().includes(search.toLowerCase()) || a.slug.toLowerCase().includes(search.toLowerCase())) &&
     (filterStatus ? a.status === filterStatus : true)
   );
 
@@ -125,11 +168,11 @@ const DashArticleListPage = () => {
           </TableHead>
           <TableBody>
             {filtered.map((a, idx) => (
-              <TableRow key={a.name + idx} hover>
+              <TableRow key={a._id || a.slug} hover>
                 <TableCell>{idx + 1}</TableCell>
-                <TableCell>{a.name}</TableCell>
+                <TableCell>{a.slug}</TableCell>
                 <TableCell>{a.title}</TableCell>
-                <TableCell>{a.content?.length || 0}</TableCell>
+                <TableCell>{a.paragraphs?.length || 0}</TableCell>
                 <TableCell>
                   <Chip
                     label={a.status || 'Active'}
@@ -140,7 +183,7 @@ const DashArticleListPage = () => {
                   />
                 </TableCell>
                 <TableCell>
-                  {a.image ? <img src={a.image} alt="preview" style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }} /> : '—'}
+                  {a.imageUrl ? <img src={a.imageUrl} alt="preview" style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }} /> : '—'}
                 </TableCell>
                 <TableCell>
                   <Button size="small" variant="outlined" sx={{ mr: 1 }} onClick={() => handleEdit(articles.indexOf(a))}>Edit</Button>
@@ -164,14 +207,13 @@ const DashArticleListPage = () => {
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>{editIdx !== null ? 'Edit Article' : 'Add Article'}</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-          <TextField label="Slug" name="name" value={form.name} onChange={handleChange} fullWidth />
+          <TextField label="Slug" name="slug" value={form.slug} onChange={handleChange} fullWidth />
           <TextField label="Title" name="title" value={form.title} onChange={handleChange} fullWidth />
-          <TextField label="Image URL" name="image" value={form.image} onChange={handleChange} fullWidth />
-          <TextField label="Description" name="desc" value={form.desc} onChange={handleChange} fullWidth />
+          <TextField label="Image URL" name="imageUrl" value={form.imageUrl} onChange={handleChange} fullWidth />
           <TextField
             label="Content paragraphs"
-            name="content"
-            value={form.content}
+            name="paragraphs"
+            value={form.paragraphs}
             onChange={handleChange}
             fullWidth
             multiline
@@ -187,7 +229,7 @@ const DashArticleListPage = () => {
             fullWidth
           >
             <MenuItem value="Active">Active</MenuItem>
-            <MenuItem value="Inactive">Inactive</MenuItem>
+            <MenuItem value="Disabled">Disabled</MenuItem>
           </TextField>
         </DialogContent>
         <DialogActions>
