@@ -1,66 +1,74 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const bodyParser = require('body-parser');
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
 
-const jwtParser = bodyParser.json();
-
-const connectDB = require('./config/db');
-const userRoutes = require('./routes/userRoutes');
-const articleRoutes = require('./routes/articleRoutes');
+const connectDB = require("./config/db");
+const userRoutes = require("./routes/userRoutes");
+const articleRoutes = require("./routes/articleRoutes");
 
 const app = express();
 
 // Database Connection
 connectDB();
 
-app.use(express.json());
-
 // Middleware
+app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
 
-// Vercel options
+// CORS Configuration
 const corsOptions = {
-  origin: '*', // Allow all origins
-  credentials: true, // Allow credentials
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-  optionsSuccessStatus: 204, // For legacy browser support
+  origin: "*",
+  credentials: true,
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+  ],
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+  optionsSuccessStatus: 204,
 };
 
-// Apply CORS
-app.use(cors(corsOptions)); // Pre-flight request for all routes
+app.use(cors(corsOptions));
 
-// CORS Error by adding a header here
+// Additional Headers
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization'
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization"
   );
-
   res.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET, POST, PUT, DELETE, PATCH, OPTIONS'
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
   );
-
   next();
 });
 
-// Routes
-app.use('/api/users', userRoutes);
-app.use('/api/articles', articleRoutes);
-
-// Error Handling
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Server Error' });
+// Test Route
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Bernardo Backend API is running",
+  });
 });
 
-const PORT = process.env.PORT || 5000;
+// API Routes
+app.use("/api/users", userRoutes);
+app.use("/api/articles", articleRoutes);
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Error Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+
+  res.status(500).json({
+    success: false,
+    message: "Server Error",
+    error: err.message,
+  });
+});
+
+// Export for Vercel
+module.exports = app;
