@@ -2,7 +2,6 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
-const bodyParser = require("body-parser");
 
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
@@ -10,32 +9,52 @@ const articleRoutes = require("./routes/articleRoutes");
 
 const app = express();
 
-// Connect Database
-connectDB();
-
 // Middleware
 app.use(express.json());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
 // CORS
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://bernardo-webprog.vercel.app",
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://bernardo-webprog.vercel.app",
-    ],
+    origin: allowedOrigins,
     credentials: true,
   })
 );
 
 // Test Route
 app.get("/", (req, res) => {
-  res.json({
+  res.status(200).json({
     success: true,
     message: "Wet Carbon Backend Running",
   });
 });
+
+// DB Test Route
+app.get("/test-db", async (req, res) => {
+  try {
+    const User = require("./models/User");
+    const count = await User.countDocuments();
+
+    res.status(200).json({
+      success: true,
+      message: "Database connected",
+      users: count,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+// Connect Database
+connectDB();
 
 // Routes
 app.use("/api/users", userRoutes);
@@ -43,11 +62,11 @@ app.use("/api/articles", articleRoutes);
 
 // Error Handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error("SERVER ERROR:", err);
 
   res.status(500).json({
     success: false,
-    message: "Server Error",
+    message: err.message || "Server Error",
   });
 });
 
@@ -60,5 +79,4 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
-// Export for Vercel
 module.exports = app;
