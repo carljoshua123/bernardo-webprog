@@ -1,16 +1,16 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const dns = require("dns");
+
+dns.setDefaultResultOrder("ipv4first");
 
 const connectDB = async () => {
-  // Connect MongoDB at default port 27017.
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-
-    });
+    const conn = await mongoose.connect(process.env.MONGO_URI);
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`Error: ${error.message}`);
-    process.exit(1); // Exit process with failure
+    process.exit(1);
   }
 };
 

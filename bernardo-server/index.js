@@ -10,7 +10,7 @@ const articleRoutes = require("./routes/articleRoutes");
 
 const app = express();
 
-// Database Connection
+// Connect Database
 connectDB();
 
 // Middleware
@@ -18,44 +18,26 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// CORS Configuration
-const corsOptions = {
-  origin: "*",
-  credentials: true,
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-Requested-With",
-  ],
-  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
-  optionsSuccessStatus: 204,
-};
-
-app.use(cors(corsOptions));
-
-// Additional Headers
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
-  );
-  next();
-});
+// CORS
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://bernardo-webprog.vercel.app",
+    ],
+    credentials: true,
+  })
+);
 
 // Test Route
 app.get("/", (req, res) => {
-  res.status(200).json({
+  res.json({
     success: true,
-    message: "Bernardo Backend API is running",
+    message: "Wet Carbon Backend Running",
   });
 });
 
-// API Routes
+// Routes
 app.use("/api/users", userRoutes);
 app.use("/api/articles", articleRoutes);
 
@@ -66,9 +48,17 @@ app.use((err, req, res, next) => {
   res.status(500).json({
     success: false,
     message: "Server Error",
-    error: err.message,
   });
 });
+
+// Local Development Only
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 8000;
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
 
 // Export for Vercel
 module.exports = app;
