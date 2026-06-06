@@ -14,34 +14,34 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // CORS
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "https://bernardo-webprog.vercel.app",
-];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-
-      if (
-        allowedOrigins.includes(origin) ||
-        origin.includes("bernardo-webprog") ||
-        origin.includes("vercel.app")
-      ) {
-        return callback(null, true);
-      }
-
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow Postman, browser direct requests, and server-to-server requests
+    if (!origin) {
       return callback(null, true);
-    },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
+    }
 
-app.options(/.*/, cors());
+    // Allow local frontend
+    if (origin.startsWith("http://localhost:")) {
+      return callback(null, true);
+    }
+
+    // Allow all Vercel frontend previews and production domains
+    if (origin.endsWith(".vercel.app")) {
+      return callback(null, true);
+    }
+
+    return callback(null, true);
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options(/.*/, cors(corsOptions));
 
 // Test Route
 app.get("/", (req, res) => {
