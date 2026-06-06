@@ -16,15 +16,32 @@ app.use(express.urlencoded({ extended: true }));
 // CORS
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://localhost:5174",
   "https://bernardo-webprog.vercel.app",
 ];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.includes("bernardo-webprog") ||
+        origin.includes("vercel.app")
+      ) {
+        return callback(null, true);
+      }
+
+      return callback(null, true);
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
+
+app.options(/.*/, cors());
 
 // Test Route
 app.get("/", (req, res) => {
