@@ -9,6 +9,6 @@ services:
       - key: NODE_ENV
         value: production
       - key: MONGO_URI
-        value: mongodb://cjgbernardo21_db_user:WetCarbon123@ztwks0s-shard-00-00.ztwks0s.mongodb.net:27017,ztwks0s-shard-00-01.ztwks0s.mongodb.net:27017,ztwks0s-shard-00-02.ztwks0s.mongodb.net:27017/wetcarbon?ssl=true&replicaSet=atlas-xxxx-shard-0&authSource=admin&retryWrites=true&w=majority
+        value: mongodb+srv://cjgbernardo21_db_user:WetCarbon123@cluster0.ztwks0s.mongodb.net/wetcarbon?retryWrites=true&w=majority
       - key: JWT_SECRET
         value: sampleSecret

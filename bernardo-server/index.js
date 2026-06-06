@@ -26,35 +26,25 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "https://bernardo-webprog.vercel.app",
-  "https://bernardo-webprog-bemvez6tf-bernardo-projects-projects.vercel.app"
 ];
-
 const corsOptions = {
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // server-to-server / curl
-    if (allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) return callback(null, true);
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    if (/\.vercel\.app$/.test(origin)) return callback(null, true);
     return callback(new Error("Not allowed by CORS"));
   },
   methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
   allowedHeaders: ["Content-Type","Authorization"],
-  credentials: false
+  credentials: false,
 };
-
 app.use(cors(corsOptions));
 
 // ====================
 // TEST ROUTES
 // ====================
-app.get("/", (req, res) => res.json({ success: true, message: "Backend running" }));
-
-app.get("/test-db", async (req, res) => {
-  try {
-    const User = require("./models/User");
-    const count = await User.countDocuments();
-    res.json({ success: true, message: "Database connected", users: count });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
+app.get("/", (req, res) => {
+  res.status(200).json({ success: true, message: "Backend running" });
 });
 
 // ====================
@@ -72,14 +62,9 @@ app.use((err, req, res, next) => {
 });
 
 // ====================
-// LOCAL DEVELOPMENT
+// BIND PORT FOR LOCAL OR RENDER
 // ====================
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT || 8000;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
+const PORT = process.env.PORT || 8000; // <- Render sets PORT dynamically
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-// ====================
-// EXPORT FOR RENDER SERVERLESS
-// ====================
 module.exports = app;
