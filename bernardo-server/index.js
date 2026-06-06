@@ -9,41 +9,34 @@ const articleRoutes = require("./routes/articleRoutes");
 
 const app = express();
 
-// Middleware
+// =======================
+// CONNECT DATABASE
+// =======================
+connectDB();
+
+// =======================
+// MIDDLEWARE
+// =======================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow Postman, browser direct requests, and server-to-server requests
-    if (!origin) {
-      return callback(null, true);
-    }
+// =======================
+// CORS FIX
+// =======================
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
-    // Allow local frontend
-    if (origin.startsWith("http://localhost:")) {
-      return callback(null, true);
-    }
+app.options("*", cors());
 
-    // Allow all Vercel frontend previews and production domains
-    if (origin.endsWith(".vercel.app")) {
-      return callback(null, true);
-    }
-
-    return callback(null, true);
-  },
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
-
-// Handle preflight requests
-app.options(/.*/, cors(corsOptions));
-
-// Test Route
+// =======================
+// ROOT ROUTE
+// =======================
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
@@ -51,10 +44,13 @@ app.get("/", (req, res) => {
   });
 });
 
-// DB Test Route
+// =======================
+// DATABASE TEST ROUTE
+// =======================
 app.get("/test-db", async (req, res) => {
   try {
     const User = require("./models/User");
+
     const count = await User.countDocuments();
 
     res.status(200).json({
@@ -63,6 +59,8 @@ app.get("/test-db", async (req, res) => {
       users: count,
     });
   } catch (error) {
+    console.error("DB TEST ERROR:", error);
+
     res.status(500).json({
       success: false,
       message: error.message,
@@ -70,14 +68,15 @@ app.get("/test-db", async (req, res) => {
   }
 });
 
-// Connect Database
-connectDB();
-
-// Routes
+// =======================
+// API ROUTES
+// =======================
 app.use("/api/users", userRoutes);
 app.use("/api/articles", articleRoutes);
 
-// Error Handler
+// =======================
+// ERROR HANDLER
+// =======================
 app.use((err, req, res, next) => {
   console.error("SERVER ERROR:", err);
 
@@ -87,7 +86,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Local Development Only
+// =======================
+// LOCALHOST ONLY
+// =======================
 if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 8000;
 
@@ -96,4 +97,7 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
+// =======================
+// EXPORT FOR VERCEL
+// =======================
 module.exports = app;
