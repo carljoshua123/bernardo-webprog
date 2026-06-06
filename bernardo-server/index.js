@@ -3,7 +3,6 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
 
-// Import routes
 const userRoutes = require("./routes/userRoutes");
 const articleRoutes = require("./routes/articleRoutes");
 
@@ -21,32 +20,29 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ====================
-// CORS CONFIG (fixed for localhost + deployed frontend)
+// CORS CONFIG (localhost + deployed frontend)
 // ====================
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://bernardo-webprog.vercel.app",
-  "https://bernardo-webprog-bemvez6tf-bernardo-projects-projects.vercel.app", // add your deployed frontend
+  "https://bernardo-webprog.vercel.app", // main deployed frontend
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (server-to-server / curl)
-    if (!origin) return callback(null, true);
+    if (!origin) return callback(null, true); // server-to-server or curl
 
-    // Exact matches allowed
+    // Allow exact matches
     if (allowedOrigins.includes(origin)) return callback(null, true);
 
     // Allow any Vercel subdomain
     if (/\.vercel\.app$/.test(origin)) return callback(null, true);
 
-    // Reject everything else
     return callback(new Error("Not allowed by CORS"));
   },
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
+  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"],
+  credentials: false, // set false if not using cookies
 };
 
 app.use(cors(corsOptions));
@@ -91,6 +87,6 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // ====================
-// EXPORT FOR VERCEL SERVERLESS
+// EXPORT FOR VERCEL
 // ====================
 module.exports = app;
