@@ -2,7 +2,6 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
-
 const userRoutes = require("./routes/userRoutes");
 const articleRoutes = require("./routes/articleRoutes");
 
@@ -20,31 +19,40 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ====================
-// CORS CONFIG
+// CORS CONFIG FOR VERCEL FRONTEND
 // ====================
 const allowedOrigins = [
+  "https://bernardo-webprog.vercel.app",  // Vercel frontend
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://bernardo-webprog.vercel.app",
 ];
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    if (/\.vercel\.app$/.test(origin)) return callback(null, true);
-    return callback(new Error("Not allowed by CORS"));
-  },
-  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type","Authorization"],
-  credentials: false,
-};
-app.use(cors(corsOptions));
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true); // server-to-server or curl
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true, // allow cookies / auth headers
+  })
+);
 
 // ====================
 // TEST ROUTES
 // ====================
 app.get("/", (req, res) => {
   res.status(200).json({ success: true, message: "Backend running" });
+});
+
+app.get("/test-db", async (req, res) => {
+  try {
+    const User = require("./models/User");
+    const count = await User.countDocuments();
+    res.status(200).json({ success: true, message: "Database Connected", users: count });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
 // ====================
@@ -62,9 +70,14 @@ app.use((err, req, res, next) => {
 });
 
 // ====================
-// BIND PORT FOR LOCAL OR RENDER
+// LOCAL DEV PORT
 // ====================
-const PORT = process.env.PORT || 8000; // <- Render sets PORT dynamically
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const PORT = process.env.PORT || 8000;
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
 
+// ====================
+// EXPORT FOR SERVERLESS RENDER
+// ====================
 module.exports = app;
