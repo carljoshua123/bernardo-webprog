@@ -3,13 +3,14 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
 
+// Import routes
 const userRoutes = require("./routes/userRoutes");
 const articleRoutes = require("./routes/articleRoutes");
 
 const app = express();
 
 // ====================
-// CONNECT TO DATABASE
+// DATABASE CONNECTION
 // ====================
 connectDB();
 
@@ -20,25 +21,27 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ====================
-// CORS CONFIG
+// CORS CONFIG (fixed for localhost + deployed frontend)
 // ====================
 const allowedOrigins = [
-  "http://localhost:5173", // dev frontend
-  "http://localhost:5174", // optional second port
-  "https://bernardo-webprog.vercel.app", // main deployed frontend
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://bernardo-webprog.vercel.app",
+  "https://bernardo-webprog-bemvez6tf-bernardo-projects-projects.vercel.app", // add your deployed frontend
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // server-to-server requests
+    // Allow requests with no origin (server-to-server / curl)
+    if (!origin) return callback(null, true);
 
-    if (
-      allowedOrigins.includes(origin) ||
-      origin.endsWith(".vercel.app")
-    ) {
-      return callback(null, true);
-    }
+    // Exact matches allowed
+    if (allowedOrigins.includes(origin)) return callback(null, true);
 
+    // Allow any Vercel subdomain
+    if (/\.vercel\.app$/.test(origin)) return callback(null, true);
+
+    // Reject everything else
     return callback(new Error("Not allowed by CORS"));
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -61,7 +64,6 @@ app.get("/test-db", async (req, res) => {
     const count = await User.countDocuments();
     res.status(200).json({ success: true, message: "Database Connected", users: count });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -89,6 +91,6 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // ====================
-// EXPORT FOR VERCEL
+// EXPORT FOR VERCEL SERVERLESS
 // ====================
 module.exports = app;
