@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout.jsx";
 import { createUser } from "../services/UserService";
 
+// Your Render backend API base URL
+const API_BASE_URL = "https://bernardo-server.onrender.com/api";
+
 function SignUpPage() {
   const navigate = useNavigate();
 
@@ -48,7 +51,8 @@ function SignUpPage() {
         isActive: true,
       };
 
-      await createUser(newUser);
+      // Pass the Render backend URL to createUser
+      await createUser(newUser, API_BASE_URL);
 
       alert("Account created successfully!");
       navigate("/signin");

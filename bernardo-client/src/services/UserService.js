@@ -1,19 +1,39 @@
 import axios from "axios";
 
-// Backend URL (environment variable)
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+// Set the base URL to your Render backend
+const API_BASE_URL = "https://bernardo-server.onrender.com/api/users";
 
-// Axios instance
-const API = axios.create({
-  baseURL: `${API_BASE_URL}/api/users`,
-  withCredentials: false, // no cookies required
-});
+// Login user
+export const loginUser = async ({ email, password }) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/login`, {
+      email,
+      password,
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
 
-// User endpoints
-export const fetchUsers = () => API.get("/");
-export const createUser = (user) => API.post("/", user);
-export const updateUser = (id, user) => API.put(`/${id}`, user);
-export const deleteUser = (id) => API.delete(`/${id}`);
-export const loginUser = (credentials) => API.post("/login", credentials);
+// Create new user (signup)
+export const createUser = async (userData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/signup`, userData);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
 
-export default API;
+// Optional: Get current user info
+export const getUserInfo = async (token) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};

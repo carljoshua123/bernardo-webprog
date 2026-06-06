@@ -1,9 +1,11 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
-import { loginUser } from "../services/UserService";
+import { loginUser } from "../services/UserService"; // make sure this points to the Render backend
 import { useAuth } from "../context/AuthContext.jsx";
+
+// Add your Render backend URL here
+const API_BASE_URL = "https://bernardo-server.onrender.com/api"; // <-- your Render backend URL
 
 function SignInPage() {
   const navigate = useNavigate();
@@ -19,7 +21,9 @@ function SignInPage() {
     e.preventDefault();
     setError("");
     try {
-      const res = await loginUser({ email: form.email, password: form.password });
+      // Make sure loginUser uses the Render URL
+      const res = await loginUser({ email: form.email, password: form.password }, API_BASE_URL);
+
       if (res.data && res.data.loginSuccessful) {
         // Store user info and role
         login({
@@ -27,6 +31,7 @@ function SignInPage() {
           name: res.data.name,
           role: res.data.role || res.data.type || "user",
         });
+
         // Redirect based on role
         if ((res.data.role || res.data.type) === "admin") {
           navigate("/dashboard");
