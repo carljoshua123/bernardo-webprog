@@ -9,6 +9,6 @@ services:
       - key: NODE_ENV
         value: production
       - key: MONGO_URI
-        value: "mongodb+srv://cjgbernardo21_db_user:WetCarbon123@ztwks0s.mongodb.net/wetcarbon?retryWrites=true&w=majority"
+        value: mongodb+srv://cjgbernardo21_db_user:WetCarbon123@ztwks0s.mongodb.net/wetcarbon?retryWrites=true&w=majority
       - key: JWT_SECRET
-        value: "sampleSecret"
+        value: sampleSecret
