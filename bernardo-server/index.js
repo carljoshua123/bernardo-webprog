@@ -20,29 +20,30 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ====================
-// CORS CONFIG (works for localhost & deployed frontend)
+// CORS CONFIG (for localhost + deployed frontend)
 // ====================
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
+  "https://bernardo-webprog.vercel.app", // main frontend deployed on Vercel
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // allow curl/server-to-server
+    // Allow server-to-server requests
+    if (!origin) return callback(null, true);
 
-    // Allow localhost
+    // Exact matches allowed
     if (allowedOrigins.includes(origin)) return callback(null, true);
 
-    // Allow any Vercel deployment subdomain
+    // Allow any Vercel subdomain
     if (/\.vercel\.app$/.test(origin)) return callback(null, true);
 
-    // Reject everything else
     return callback(new Error("Not allowed by CORS"));
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true, // keep true if you plan to use cookies/sessions
+  credentials: false, // set to true if you use cookies/sessions
 };
 
 app.use(cors(corsOptions));
@@ -79,7 +80,7 @@ app.use((err, req, res, next) => {
 });
 
 // ====================
-// LOCAL DEVELOPMENT ONLY
+// LOCAL DEVELOPMENT
 // ====================
 if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 8000;
@@ -87,6 +88,6 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // ====================
-// EXPORT FOR VERCEL SERVERLESS
+// EXPORT FOR RENDER / SERVERLESS
 // ====================
 module.exports = app;
