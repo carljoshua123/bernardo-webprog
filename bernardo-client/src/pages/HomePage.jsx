@@ -1,3 +1,8 @@
+import image from "../assets/image.png";
+import adv from "../assets/adv.png";
+import nmax from "../assets/nmax.png";
+import aerox from "../assets/aerox.png";
+
 export default function HomePage() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-12 space-y-12 fade-in">
@@ -19,7 +24,7 @@ export default function HomePage() {
 
         <div className="h-[600px] rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl">
           <img
-            src="/src/assets/image.png"
+            src={image}
             alt="Carbon fiber motorcycle parts"
             className="w-full h-full object-cover"
           />
@@ -40,17 +45,17 @@ export default function HomePage() {
         {[
           {
             title: "HONDA ADV 160",
-            image: "/src/assets/adv.png",
+            image: adv,
             desc: "Upgrade your ADV 160 with precision-crafted carbon fiber fairings for improved aerodynamics, lighter weight, and a bold premium finish."
           },
           {
             title: "YAMAHA NMAX V2",
-            image: "/src/assets/nmax.png",
+            image: nmax,
             desc: "Enhance durability and heat resistance with carbon fiber covers built to protect and elevate the sleek design of your NMAX."
           },
           {
             title: "YAMAHA AEROX",
-            image: "/src/assets/aerox.png",
+            image: aerox,
             desc: "Transform your Aerox with aggressive carbon fiber panels and fenders designed for performance, style, and street dominance."
           }
         ].map((card, i) => (

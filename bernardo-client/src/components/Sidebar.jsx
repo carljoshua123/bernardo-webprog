@@ -6,6 +6,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
+import logoImage from "../assets/image.png";
 
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AssessmentIcon from "@mui/icons-material/Assessment";
@@ -30,7 +31,7 @@ const Sidebar = () => {
     >
       {/* Image above navigation links */}
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-        <img src="/src/assets/image.png" alt="Sidebar Visual" style={{ width: '80%', borderRadius: 8 }} />
+        <img src={logoImage} alt="Sidebar Visual" style={{ width: '80%', borderRadius: 8 }} />
       </Box>
       <List>
         <NavLink to="/dashboard" style={linkStyle}>

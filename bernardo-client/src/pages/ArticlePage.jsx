@@ -2,21 +2,24 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Button from "../components/Button";
 import { fetchArticles } from "../services/ArticleService.js";
+import adv1 from "../assets/adv1.png";
+import maxie from "../assets/maxie.png";
+import aerox1 from "../assets/aerox1.png";
 
 const previewCards = [
   {
     title: "CARBON CLASSIC",
-    image: "/src/assets/adv1.png",
+    image: adv1,
     desc: "A clean carbon finish with a lightweight, premium look.",
   },
   {
     title: "CARBON FORGED",
-    image: "/src/assets/maxie.png",
+    image: maxie,
     desc: "Forged carbon texture designed for a sharper, modern style.",
   },
   {
     title: "CARBON RACE",
-    image: "/src/assets/aerox1.png",
+    image: aerox1,
     desc: "Bold carbon layering with a more aggressive visual finish.",
   },
 ];

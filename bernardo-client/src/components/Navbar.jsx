@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import logoImage from "../assets/image.png";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -16,7 +17,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
           <img 
-            src="/src/assets/image.png" 
+            src={logoImage} 
             alt="Wet Carbon Logo" 
             className="w-12 h-12 object-cover rounded-lg border border-zinc-800 shadow-lg" 
           />

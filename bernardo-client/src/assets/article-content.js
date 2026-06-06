@@ -1,8 +1,14 @@
+import image from "./image.png";
+import team from "./team.png";
+import aerox from "./aerox.png";
+import adv from "./adv.png";
+import nmax from "./nmax.png";
+
 const articles = [
   {
     name: "carbon-surface-finish",
     title: "Carbon Surface Finish Guide",
-    image: "/src/assets/image.png",
+    image: image,
     desc: "A closer look at how surface finish changes the feel, depth, and premium appearance of carbon parts.",
     content: [
       "Surface finish plays a major role in how carbon fiber is perceived. A deep gloss finish highlights the weave pattern, reflects light cleanly, and creates a premium showroom look.",
@@ -14,7 +20,7 @@ const articles = [
   {
     name: "forged-carbon-details",
     title: "Forged Carbon Details",
-    image: "/src/assets/team.png",
+    image: team,
     desc: "Why forged carbon stands out with a more random texture and a stronger high-contrast visual identity.",
     content: [
       "Forged carbon has a different character from traditional woven carbon. Instead of a uniform pattern, it uses compressed fragments that create a more aggressive, broken texture.",
@@ -26,7 +32,7 @@ const articles = [
   {
     name: "carbon-care-basics",
     title: "Carbon Care Basics",
-    image: "/src/assets/aerox.png",
+    image: aerox,
     desc: "Simple maintenance habits that keep carbon panels clean, protected, and visually sharp over time.",
     content: [
       "Carbon fiber parts look best when they are maintained consistently. Dust, residue, and harsh cleaning products can dull the finish and make premium surfaces look flat.",
@@ -38,7 +44,7 @@ const articles = [
   {
     name: "carbon-panel-fitment",
     title: "Carbon Panel Fitment Notes",
-    image: "/src/assets/adv.png",
+    image: adv,
     desc: "Fitment quality matters as much as finish, especially when carbon pieces are used as visible exterior parts.",
     content: [
       "Good fitment is one of the biggest signs of quality in carbon body panels. Even a strong material can look unfinished if the alignment is inconsistent or gaps are uneven.",
@@ -50,7 +56,7 @@ const articles = [
   {
     name: "lightweight-carbon-benefits",
     title: "Lightweight Carbon Benefits",
-    image: "/src/assets/nmax.png",
+    image: nmax,
     desc: "Why carbon remains a strong material choice when weight reduction and premium styling both matter.",
     content: [
       "Carbon fiber is valued because it combines low weight with strong visual identity. It gives projects a more technical, performance-driven feel without relying on heavy styling tricks.",
