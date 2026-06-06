@@ -1,15 +1,11 @@
 const mongoose = require("mongoose");
-const dns = require("dns");
-
-dns.setDefaultResultOrder("ipv4first");
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
+    await mongoose.connect(process.env.MONGO_URI); // JUST the URI, no extra options
+    console.log("MongoDB connected successfully");
+  } catch (err) {
+    console.error("MongoDB connection error:", err);
     process.exit(1);
   }
 };
